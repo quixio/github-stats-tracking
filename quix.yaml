@@ -64,3 +64,4 @@ topics:
     configuration:
       retentionInMinutes: -1
   - name: github_data
+  - name: trashcan
