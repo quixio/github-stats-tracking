@@ -34,7 +34,7 @@ influx3_client = InfluxDBClient3(
 def to_influxdb(msg):
     try:
         sourcerepo = msg["repo"]
-        reportedtime = msg["timestamp_iso"]
+        reportedtime = msg["day_recorded"]
         logger.info(f"####### Collecting stats for repo {sourcerepo}")
 
         for item in msg["referrals"]:
