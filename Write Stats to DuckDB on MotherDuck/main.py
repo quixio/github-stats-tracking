@@ -124,7 +124,7 @@ def to_duckdb(conn, msg):
 
 # Define your application and settings
 app = Application(
-    consumer_group=os.environ['input'],
+    consumer_group=os.environ['CONSUMER_GROUP_NAME'],
     auto_offset_reset="earliest",
 )
 
