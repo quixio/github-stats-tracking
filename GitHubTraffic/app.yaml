@@ -11,6 +11,11 @@ variables:
     description: GitHub token
     defaultValue: GH_TOKEN
     required: true
+  - name: GH_ORG
+    inputType: FreeText
+    description: ''
+    defaultValue: quixio
+    required: false
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py
