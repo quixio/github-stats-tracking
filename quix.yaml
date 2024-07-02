@@ -41,3 +41,4 @@ topics:
       retentionInMinutes: -1
   - name: github_data
   - name: trashcan
+  - name: github_data_v1
