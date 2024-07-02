@@ -68,11 +68,14 @@ def get_data(repo_name):
     print(f"Views JSON for {repo_name}:", views_json)
 
     current_time = datetime.datetime.utcnow()
+    current_day = current_time.replace(hour=0, minute=0, second=0, microsecond=0)
+
     return {
         "repo": repo_name,
         "referrals": referral_sources,
         "pageviews": pageviews,
         "views": views,
+        "day_recorded": current_day,
         "timestamp_iso": current_time.isoformat() + 'Z',  # ISO 8601 format
         "timestamp_unix": int(current_time.timestamp())  # Unix timestamp
     }
