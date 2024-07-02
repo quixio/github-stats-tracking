@@ -18,6 +18,7 @@ topic = app.topic(topic_name)
 # Replace with your GitHub token and organization details
 GITHUB_TOKEN = os.getenv('GH_TOKEN', '')
 ORG = 'quixio'
+sleeptime = int(os.environ["sleeptime"])
 
 def get_repos():
     headers = {
@@ -98,8 +99,9 @@ def main():
                     value=json_data,
                 )
 
-            print("All rows published. Sleeping...")
-        time.sleep(3600) # sleep 1 hour
+            print(f"All rows published. Sleeping {sleeptime} secs ({sleeptime / 3600} hours)...")
+
+        time.sleep(sleeptime) # sleep 1 hour
 
 if __name__ == "__main__":
     try:
