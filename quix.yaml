@@ -8,8 +8,8 @@ metadata:
 deployments:
   - name: GitHubTraffic GitHubStats
     application: GitHubTraffic
-    deploymentType: Service
     version: latest
+    deploymentType: Service
     resources:
       cpu: 200
       memory: 500
@@ -32,8 +32,8 @@ deployments:
         value: quix-streams
   - name: Template-template-hello-quix GitHubStats
     application: GitHubTraffic
-    deploymentType: Service
     version: latest
+    deploymentType: Service
     resources:
       cpu: 200
       memory: 500
@@ -63,3 +63,4 @@ topics:
   - name: template-hello-quix-gh-stats
     configuration:
       retentionInMinutes: -1
+  - name: github_data
