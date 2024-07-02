@@ -44,15 +44,15 @@ def get_data(repo_name):
         'Accept': 'application/vnd.github.v3+json'
     }
 
-    # Get traffic sources
-    traffic_url = f'https://api.github.com/repos/{ORG}/{repo_name}/traffic/popular/referrers'
-    response = requests.get(traffic_url, headers=headers)
-    traffic_sources = response.json()
+    # Get referrals sources
+    referrals_url = f'https://api.github.com/repos/{ORG}/{repo_name}/traffic/popular/referrers'
+    response = requests.get(referrals_url, headers=headers)
+    referral_sources = response.json()
 
-    # Get referring sites
-    referring_sites_url = f'https://api.github.com/repos/{ORG}/{repo_name}/traffic/popular/paths'
-    response = requests.get(referring_sites_url, headers=headers)
-    referring_sites = response.json()
+    # Get views for specific pages
+    pageviews_url = f'https://api.github.com/repos/{ORG}/{repo_name}/traffic/popular/paths'
+    response = requests.get(pageviews_url, headers=headers)
+    pageviews = response.json()
 
     # Get total and unique visitors
     views_url = f'https://api.github.com/repos/{ORG}/{repo_name}/traffic/views'
@@ -60,18 +60,18 @@ def get_data(repo_name):
     views = response.json()
 
     # debug
-    traffic_sources_json = json.dumps(traffic_sources)
-    referring_sites_json = json.dumps(referring_sites)
+    referral_sources_json = json.dumps(referral_sources)
+    pageviews_json = json.dumps(pageviews)
     views_json = json.dumps(views)
-    print(f"Traffic Sources JSON for {repo_name}:", traffic_sources_json)
-    print(f"Referring Sites JSON for {repo_name}:", referring_sites_json)
+    print(f"Referrals Sources JSON for {repo_name}:", referral_sources_json)
+    print(f"Referring Sites JSON for {repo_name}:", pageviews_json)
     print(f"Views JSON for {repo_name}:", views_json)
 
     current_time = datetime.datetime.utcnow()
     return {
         "repo": repo_name,
-        "traffic": traffic_sources,
-        "referrers": referring_sites,
+        "referrals": referral_sources,
+        "pageviews": pageviews,
         "views": views,
         "timestamp_iso": current_time.isoformat() + 'Z',  # ISO 8601 format
         "timestamp_unix": int(current_time.timestamp())  # Unix timestamp
