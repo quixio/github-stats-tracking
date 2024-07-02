@@ -9,8 +9,7 @@ import datetime
 from dotenv import load_dotenv
 load_dotenv()
 
-app = Application(
-    auto_create_topics=True)  # create an Application
+app = Application(consumer_group="data_source", auto_create_topics=True)  # create an Application
 
 # define the topic using the "output" environment variable
 topic_name = os.environ["output"]
@@ -45,34 +44,34 @@ def get_data(repo_name):
         'Accept': 'application/vnd.github.v3+json'
     }
 
-    # Get referral sources
-    referrals_url = f'https://api.github.com/repos/{ORG}/{REPO}/traffic/popular/referrers'
-    response = requests.get(referrals_url, headers=headers)
-    referral_sources = response.json()
+    # Get traffic sources
+    traffic_url = f'https://api.github.com/repos/{ORG}/{repo_name}/traffic/popular/referrers'
+    response = requests.get(traffic_url, headers=headers)
+    traffic_sources = response.json()
 
-    # Get views for specific file paths/pages
-    page_views_url = f'https://api.github.com/repos/{ORG}/{REPO}/traffic/popular/paths'
-    response = requests.get(page_views_url, headers=headers)
-    page_views = response.json()
+    # Get referring sites
+    referring_sites_url = f'https://api.github.com/repos/{ORG}/{repo_name}/traffic/popular/paths'
+    response = requests.get(referring_sites_url, headers=headers)
+    referring_sites = response.json()
 
     # Get total and unique visitors
-    views_url = f'https://api.github.com/repos/{ORG}/{REPO}/traffic/views'
+    views_url = f'https://api.github.com/repos/{ORG}/{repo_name}/traffic/views'
     response = requests.get(views_url, headers=headers)
     views = response.json()
 
     # debug
-    referral_sources_json = json.dumps(referral_sources)
-    page_views_json = json.dumps(page_views)
+    traffic_sources_json = json.dumps(traffic_sources)
+    referring_sites_json = json.dumps(referring_sites)
     views_json = json.dumps(views)
-    print(f"Referral Sources JSON for {repo_name}:", referral_sources_json)
-    print(f"Page views JSON for {repo_name}:", page_views_json)
+    print(f"Traffic Sources JSON for {repo_name}:", traffic_sources_json)
+    print(f"Referring Sites JSON for {repo_name}:", referring_sites_json)
     print(f"Views JSON for {repo_name}:", views_json)
 
     current_time = datetime.datetime.utcnow()
     return {
         "repo": repo_name,
-        "referrals": referral_sources,
-        "pageviews": page_views,
+        "traffic": traffic_sources,
+        "referrers": referring_sites,
         "views": views,
         "timestamp_iso": current_time.isoformat() + 'Z',  # ISO 8601 format
         "timestamp_unix": int(current_time.timestamp())  # Unix timestamp
