@@ -46,17 +46,17 @@ def get_data(repo_name):
     }
 
     # Get referral sources
-    referrals_url = f'https://api.github.com/repos/{OWNER}/{REPO}/traffic/popular/referrers'
+    referrals_url = f'https://api.github.com/repos/{ORG}/{REPO}/traffic/popular/referrers'
     response = requests.get(referrals_url, headers=headers)
     referral_sources = response.json()
 
     # Get views for specific file paths/pages
-    page_views_url = f'https://api.github.com/repos/{OWNER}/{REPO}/traffic/popular/paths'
+    page_views_url = f'https://api.github.com/repos/{ORG}/{REPO}/traffic/popular/paths'
     response = requests.get(page_views_url, headers=headers)
     page_views = response.json()
 
     # Get total and unique visitors
-    views_url = f'https://api.github.com/repos/{OWNER}/{REPO}/traffic/views'
+    views_url = f'https://api.github.com/repos/{ORG}/{REPO}/traffic/views'
     response = requests.get(views_url, headers=headers)
     views = response.json()
 
