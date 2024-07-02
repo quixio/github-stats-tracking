@@ -29,7 +29,7 @@ variables:
   - name: INFLUXDB_DATABASE
     inputType: FreeText
     description: Database name in InfluxDB where data should be stored.
-    defaultValue: ''
+    defaultValue: quix_github_stats
     required: true
   - name: INFLUXDB_TAG_KEYS
     inputType: FreeText
