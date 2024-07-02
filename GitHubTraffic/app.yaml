@@ -4,7 +4,7 @@ variables:
   - name: output
     inputType: OutputTopic
     description: Name of the output topic to write into
-    defaultValue: github_data
+    defaultValue: github_data_v1
     required: true
   - name: GH_TOKEN
     inputType: Secret
