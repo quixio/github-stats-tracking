@@ -4,7 +4,7 @@ variables:
   - name: input
     inputType: InputTopic
     description: This is the input topic
-    defaultValue: input-data
+    defaultValue: github_data_v1
     required: true
   - name: MOTHERDUCK_TOKEN
     inputType: Secret
