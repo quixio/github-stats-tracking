@@ -30,6 +30,11 @@ deployments:
         description: ''
         required: false
         value: quixio
+      - name: sleeptime
+        inputType: FreeText
+        description: ''
+        required: false
+        value: 14400
   - name: Write Referrals, PageViews, DailyViews to InfluxDB V3
     application: Write Stats to InfluxDB V3
     version: latest
