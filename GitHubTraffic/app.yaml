@@ -16,6 +16,11 @@ variables:
     description: ''
     defaultValue: quixio
     required: false
+  - name: sleeptime
+    inputType: FreeText
+    description: ''
+    defaultValue: 3600
+    required: false
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py
