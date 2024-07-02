@@ -1,129 +1,140 @@
-# import Utility modules
+from quixstreams import Application
+import duckdb
 import os
-import ast
-from datetime import datetime
 import logging
-import pickle
-from time import time
-
-# import vendor-specific modules
-from quixstreams import Application, State
-from quixstreams import message_context
-
-from influxdb_client_3 import Point, InfluxDBClient3
-
-# for local dev, load env vars from a .env file
+import datetime
 from dotenv import load_dotenv
 load_dotenv()
+
+mdtoken = os.environ['motherduck_token']
+# initiate the MotherDuck connection through a service token through
+con = duckdb.connect(f'md:github_stats?motherduck_token={mdtoken}')
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# read the consumer group from config
-consumer_group_name = os.environ.get("CONSUMER_GROUP_NAME", "influxdb-data-writer")
+referralstable = "referral_stats_rolling14days"
+pageviewstable = "pageview_stats_rolling14days"
+dailyviewstable = "totalviews_daybreakdown"
+totalviewstable = "totalviews_rolling14days"
 
-# read the timestamp column from config
-timestamp_column = os.environ.get("TIMESTAMP_COLUMN", "")
-
-# Create a Quix platform-specific application instead
-app = Application.Quix(consumer_group=consumer_group_name, auto_offset_reset="earliest", use_changelog_topics=False)
-
-input_topic = app.topic(os.environ["input"])
-
-# Read the environment variable and convert it to a dictionary
-tag_keys = ast.literal_eval(os.environ.get("INFLUXDB_TAG_KEYS", "[]"))
-field_keys = ast.literal_eval(os.environ.get("INFLUXDB_FIELD_KEYS", "[]"))
-
-# Read the environment variable for the field(s) to get.
-# For multiple fields, use a list "["field1","field2"]"
-                                           
-influx3_client = InfluxDBClient3(token=os.environ["INFLUXDB_TOKEN"],
-                         host=os.environ["INFLUXDB_HOST"],
-                         org=os.environ["INFLUXDB_ORG"],
-                         database=os.environ["INFLUXDB_DATABASE"])
-
-# Get the measurement name to write data to
-measurement_name = os.environ.get("INFLUXDB_MEASUREMENT_NAME", "measurement1")
-
-# Initialize a buffer for batching points and a timestamp for the last write
-points_buffer = []
-service_start_state = True
-last_write_time_ns = int(time() * 1e9)  # Convert current time from seconds to nanoseconds
-
-
-def send_data_to_influx(message: dict, state: State):
-    global last_write_time_ns, points_buffer, service_start_state
-
-    if timestamp_column == '':
-        message_time_ns = (message_context().timestamp).milliseconds * 1000 * 1000
-    else:
-        message_time_ns = message[timestamp_column]
-
+def to_duckdb(conn, msg):
     try:
+        sourcerepo = msg["repo"]
+        reportedtime = msg["day_recorded"]
+        logger.info(f"####### Collecting stats for repo {sourcerepo}")
 
-        # if the service just started, check for any state values to load.
-        if service_start_state:
-            # we only need this check on startup.
-            service_start_state = False
-            # load the points buffer from state right into the variable or supply a default.
-            points_buffer = state.get('points_buffer', [])
-            logger.info("Pickled buffer loaded from state.")
+        # Check if the referrals table exists and create it if not
+        table_exists = conn.execute(
+            f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{referralstable}')").fetchone()[0]
+        if not table_exists:
 
-        # Initialize the tags and fields dictionaries
-        tags = {}
-        fields = {}
+            conn.execute(f'''
+                CREATE TABLE {referralstable} (
+                    repo VARCHAR,
+                    referrer VARCHAR,
+                    count INTEGER,
+                    uniques INTEGER,
+                    day TIMESTAMP,
+                    UNIQUE(repo, referrer, day)
+                );
+            ''')
 
-        # Iterate over the tag_dict and field_dict to populate tags and fields
-        for tag_key in tag_keys:
-            if tag_key in message:
-                if message[tag_key] is not None:  # skip None values
-                    tags[tag_key] = message[tag_key]
+        for record in msg["referrals"]:
+            conn.execute(f'''
+                INSERT INTO {referralstable} (repo, referrer, count, uniques, day) VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT (repo, referrer, day)
+                DO UPDATE SET count = excluded.count, uniques = excluded.uniques;
+                ''', (sourcerepo, record['referrer'], record['count'], record['uniques'], reportedtime))
+            logger.info(f"Wrote referral record: {record}")
 
-        for field_key in field_keys:
-            if field_key in message:
-                if message[field_key] is not None:  # skip None values
-                    fields[field_key] = message[field_key]
+        # Check if the pageviews table exists and create it if not
+        table_exists = conn.execute(
+            f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{pageviewstable}')").fetchone()[
+            0]
+        if not table_exists:
+            conn.execute(f'''
+                CREATE TABLE {pageviewstable} (
+                    day TIMESTAMP,
+                    repo VARCHAR,
+                    path VARCHAR,
+                    title VARCHAR,
+                    count INTEGER,
+                    uniques INTEGER,
+                    UNIQUE(repo, path, day)
+                );
+            ''')
 
-        logger.debug(f"Using tag keys: {', '.join(tags.keys())}")
-        logger.debug(f"Using field keys: {', '.join(fields.keys())}")
+        for record in msg["pageviews"]:
+            conn.execute(f'''
+                INSERT INTO {pageviewstable} (day, repo, path, title, count, uniques) VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT (repo, path, day)
+                DO UPDATE SET title = excluded.title, count = excluded.count, uniques = excluded.uniques;
+                ''', (reportedtime, sourcerepo, record['path'], record['title'], record['count'], record['uniques']))
 
-        # Check if fields dictionary is not empty
-        if not fields and not tags:
-            logger.debug("Fields and Tags are empty: No data to write to InfluxDB.")
-            return  # Skip writing to InfluxDB
-        
-        # Create a new Point and add it to the buffer
-        point = Point(measurement_name).time(message_time_ns)
-        for tag_key, tag_value in tags.items():
-            point.tag(tag_key, tag_value)
-        for field_key, field_value in fields.items():
-            point.field(field_key, field_value)
-        points_buffer.append(point.to_line_protocol())
+        # Check if the daily views table exists and create it if not
+        table_exists = conn.execute(
+            f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{dailyviewstable}')").fetchone()[
+            0]
+        if not table_exists:
+            conn.execute(f'''
+            CREATE TABLE {dailyviewstable} (
+                day TIMESTAMP,
+                repo VARCHAR,
+                count INTEGER,
+                uniques INTEGER,
+                UNIQUE(repo, day)
+            );
+            ''')
 
-        # Check if it's time to write the batch
-        if len(points_buffer) >= 10000 or int(time() * 1e9) - last_write_time_ns >= 15e9:  # 10k records have accumulated or 15 seconds have passed
-            with influx3_client as client:
-                logger.info(f"Writing batch of {len(points_buffer)} points written to InfluxDB.")
-                client.write(record=points_buffer)
+        for record in msg["views"]["views"]:
+            conn.execute(f'''
+                INSERT INTO {dailyviewstable} (day, repo, count, uniques) VALUES (?, ?, ?, ?)
+                ON CONFLICT (repo, day)
+                DO UPDATE SET count = excluded.count, uniques = excluded.uniques;
+                ''', (record['timestamp'], sourcerepo, record['count'], record['uniques']))
+            logger.info(f"Wrote views record: {record}")
 
-            # Clear the buffer and update the last write time
-            points_buffer = []
-            last_write_time_ns = int(time() * 1e9)
-        
-        if len(points_buffer) > 0:
-            # if there is anything in the buffer, store it to state.
-            state.set('points_buffer', points_buffer)
-        else:
-            # if we just wrote to InfluxDb and the buffer is empty, delete the state.
-            state.delete('points_buffer')
+        # Create the rolling views table to match the data structure
+        table_exists = conn.execute(
+            f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{totalviewstable}')").fetchone()[
+            0]
+        if not table_exists:
+            conn.execute(f'''
+            CREATE TABLE {totalviewstable} (
+                repo VARCHAR,
+                count INTEGER,
+                uniques INTEGER,
+                day TIMESTAMP,
+                UNIQUE(repo, day)
+            );
+            ''')
+
+        conn.execute(f'''
+        INSERT INTO {totalviewstable} (repo, count, uniques, day) VALUES (?, ?, ?, ?)
+        ON CONFLICT (repo, day)
+        DO UPDATE SET count = excluded.count, uniques = excluded.uniques;
+        ''', (sourcerepo, msg["views"]["count"], msg["views"]["uniques"], reportedtime))
+        logger.info(f"Wrote agg-views record for: {sourcerepo}")
 
     except Exception as e:
-        logger.info(f"{str(datetime.utcnow())}: Write failed")
+        logger.info(f"{str(datetime.datetime.utcnow())}: Write failed")
         logger.info(e)
 
-sdf = app.dataframe(input_topic)
-sdf = sdf.update(send_data_to_influx, stateful=True)
+# Define your application and settings
+app = Application(
+    consumer_group="duckdb-sink-v8",
+    auto_offset_reset="earliest",
+)
 
-if __name__ == "__main__":
-    logger.info("Starting application")
-    app.run(sdf)
+# Define an input topic with JSON deserializer
+input_topic = app.topic(os.environ['input'], value_deserializer="json")
+
+# Initialize a streaming dataframe based on the stream of messages from the input topic:
+sdf = app.dataframe(topic=input_topic)
+sdf = sdf.update(lambda val: print(f"Received update: {val}"))
+
+# Trigger the embedding function for any new messages(rows) detected in the filtered SDF
+sdf = sdf.update(lambda val: to_duckdb(con, val), stateful=False)
+
+app.run(sdf)
