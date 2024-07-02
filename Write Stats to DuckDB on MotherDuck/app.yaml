@@ -16,11 +16,6 @@ variables:
     description: Authentication token to access InfluxDB.
     defaultValue: ''
     required: true
-  - name: INFLUXDB_ORG
-    inputType: FreeText
-    description: Organization name in InfluxDB.
-    defaultValue: ''
-    required: false
   - name: INFLUXDB_DATABASE
     inputType: FreeText
     description: Database name in InfluxDB where data should be stored.
