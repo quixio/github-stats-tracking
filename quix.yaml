@@ -94,6 +94,35 @@ deployments:
         description: 'The column containing the timestamp column. NOTE: Must be nanoseconds'
         required: false
         value: ''
+  - name: Write Stats to DuckDB on MotherDuck
+    application: Write Stats to DuckDB on MotherDuck
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 500
+      replicas: 1
+    variables:
+      - name: input
+        inputType: InputTopic
+        description: This is the input topic
+        required: true
+        value: github_data_v1
+      - name: MOTHERDUCK_TOKEN
+        inputType: Secret
+        description: Authentication token to access InfluxDB.
+        required: true
+        secretKey: MOTHERDUCK_TOKEN
+      - name: MOTHERDUCK_DATABASE
+        inputType: FreeText
+        description: Database name in InfluxDB where data should be stored.
+        required: true
+        value: github_stats
+      - name: CONSUMER_GROUP_NAME
+        inputType: FreeText
+        description: The name of the consumer group to use when consuming from Kafka
+        required: true
+        value: duckdb-sink-v1
 
 # This section describes the Topics of the data pipeline
 topics:
