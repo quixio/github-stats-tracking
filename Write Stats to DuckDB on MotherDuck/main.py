@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 mdtoken = os.environ['motherduck_token']
+mddatabase = os.environ['motherduck_token']
 # initiate the MotherDuck connection through a service token through
 con = duckdb.connect(f'md:github_stats?motherduck_token={mdtoken}')
 
