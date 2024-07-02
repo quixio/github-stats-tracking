@@ -11,11 +11,6 @@ variables:
     description: GitHub token
     defaultValue: GH_TOKEN
     required: true
-  - name: GH_REPO
-    inputType: FreeText
-    description: Quix IO GitHub repo
-    defaultValue: ''
-    required: true
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py
