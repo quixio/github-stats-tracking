@@ -9,7 +9,7 @@ variables:
   - name: MOTHERDUCK_TOKEN
     inputType: Secret
     description: Authentication token to access InfluxDB.
-    defaultValue: INFLUXDB_TOKEN
+    defaultValue: MOTHERDUCK_TOKEN
     required: true
   - name: MOTHERDUCK_DATABASE
     inputType: FreeText
