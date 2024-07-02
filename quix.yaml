@@ -19,17 +19,17 @@ deployments:
         inputType: OutputTopic
         description: Name of the output topic to write into
         required: true
-        value: quix-streams-gh-stats
+        value: github_data_v1
       - name: GH_TOKEN
         inputType: Secret
         description: GitHub token
         required: true
         secretKey: GH_TOKEN
-      - name: GH_REPO
+      - name: GH_ORG
         inputType: FreeText
-        description: Quix IO GitHub repo
-        required: true
-        value: quix-streams
+        description: ''
+        required: false
+        value: quixio
 
 # This section describes the Topics of the data pipeline
 topics:
