@@ -17,9 +17,6 @@ logger = logging.getLogger(__name__)
 # read the consumer group from config
 consumer_group_name = os.environ.get("CONSUMER_GROUP_NAME", "influxdb-data-writer")
 
-# read the timestamp column from config
-timestamp_column = os.environ.get("TIMESTAMP_COLUMN", "")
-
 # Create a Quix platform-specific application instead
 app = Application(
     consumer_group=consumer_group_name,
@@ -27,27 +24,12 @@ app = Application(
     use_changelog_topics=False)
 
 input_topic = app.topic(os.environ["input"])
-
-# Read the environment variable and convert it to a dictionary
-# tag_keys = ast.literal_eval(os.environ.get("INFLUXDB_TAG_KEYS", "[]"))
-# ield_keys = ast.literal_eval(os.environ.get("INFLUXDB_FIELD_KEYS", "[]"))
-
-# Read the environment variable for the field(s) to get.
-# For multiple fields, use a list "["field1","field2"]"
                                            
 influx3_client = InfluxDBClient3(
                          token=os.environ["INFLUXDB_TOKEN"],
                          host=os.environ["INFLUXDB_HOST"],
                          org=os.environ["INFLUXDB_ORG"],
                          database=os.environ["INFLUXDB_DATABASE"])
-
-# Get the measurement name to write data to
-# measurement_name = os.environ.get("INFLUXDB_MEASUREMENT_NAME", "measurement1")
-
-# Initialize a buffer for batching points and a timestamp for the last write
-# points_buffer = []
-# service_start_state = True
-# last_write_time_ns = int(time() * 1e9)  # Convert current time from seconds to nanoseconds
 
 def to_influxdb(msg):
     try:
