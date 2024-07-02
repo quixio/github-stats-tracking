@@ -75,7 +75,7 @@ def get_data(repo_name):
         "referrals": referral_sources,
         "pageviews": pageviews,
         "views": views,
-        "day_recorded": current_day,
+        "day_recorded": current_day.isoformat() + 'Z',
         "timestamp_iso": current_time.isoformat() + 'Z',  # ISO 8601 format
         "timestamp_unix": int(current_time.timestamp())  # Unix timestamp
     }
