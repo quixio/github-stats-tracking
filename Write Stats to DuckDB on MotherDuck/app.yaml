@@ -14,7 +14,7 @@ variables:
   - name: MOTHERDUCK_DATABASE
     inputType: FreeText
     description: Database name in InfluxDB where data should be stored.
-    defaultValue: ''
+    defaultValue: github_stats
     required: true
   - name: CONSUMER_GROUP_NAME
     inputType: FreeText
