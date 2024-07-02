@@ -6,8 +6,8 @@ import datetime
 from dotenv import load_dotenv
 load_dotenv()
 
-mdtoken = os.environ['motherduck_token']
-mddatabase = os.environ['motherduck_token']
+mdtoken = os.environ['MOTHERDUCK_TOKEN']
+mddatabase = os.environ['MOTHERDUCK_DATABASE']
 # initiate the MotherDuck connection through a service token through
 con = duckdb.connect(f'md:github_stats?motherduck_token={mdtoken}')
 
