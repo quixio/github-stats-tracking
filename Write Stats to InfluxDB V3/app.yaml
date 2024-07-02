@@ -4,7 +4,7 @@ variables:
   - name: input
     inputType: InputTopic
     description: This is the input topic
-    defaultValue: input-data
+    defaultValue: github_data
     required: true
   - name: INFLUXDB_HOST
     inputType: FreeText
