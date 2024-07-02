@@ -21,11 +21,6 @@ variables:
     description: The name of the consumer group to use when consuming from Kafka
     defaultValue: influxdb-sink
     required: true
-  - name: TIMESTAMP_COLUMN
-    inputType: FreeText
-    description: 'The column containing the timestamp column. NOTE: Must be nanoseconds'
-    defaultValue: ''
-    required: false
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py
