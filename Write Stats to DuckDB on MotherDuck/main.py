@@ -9,7 +9,7 @@ load_dotenv()
 mdtoken = os.environ['MOTHERDUCK_TOKEN']
 mddatabase = os.environ['MOTHERDUCK_DATABASE']
 # initiate the MotherDuck connection through a service token through
-con = duckdb.connect(f'md:github_stats?motherduck_token={mdtoken}')
+con = duckdb.connect(f'md:{mddatabase}?motherduck_token={mdtoken}')
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
