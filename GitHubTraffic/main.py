@@ -98,7 +98,7 @@ def main():
                     value=json_data,
                 )
 
-            print("All rows published")
+            print("All rows published. Sleeping...")
         time.sleep(3600) # sleep 1 hour
 
 if __name__ == "__main__":
