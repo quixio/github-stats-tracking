@@ -6,10 +6,10 @@ variables:
     description: This is the input topic
     defaultValue: input-data
     required: true
-  - name: INFLUXDB_TOKEN
-    inputType: FreeText
+  - name: MOTHERDUCK_TOKEN
+    inputType: Secret
     description: Authentication token to access InfluxDB.
-    defaultValue: ''
+    defaultValue: INFLUXDB_TOKEN
     required: true
   - name: INFLUXDB_DATABASE
     inputType: FreeText
