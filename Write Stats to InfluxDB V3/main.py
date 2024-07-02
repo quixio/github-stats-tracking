@@ -59,7 +59,7 @@ def to_influxdb(msg):
             logger.info(f"Wrote referrer record: {point}")
 
         for view in msg["views"]["views"]:
-            point = Point("views-daily") \
+            point = Point("views-dailybreakdown") \
                 .tag("repo", sourcerepo) \
                 .field("count", view["count"]) \
                 .field("uniques", view["uniques"]) \
