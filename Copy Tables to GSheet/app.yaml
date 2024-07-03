@@ -16,6 +16,11 @@ variables:
     description: ''
     defaultValue: 1JVdz_nC0bXW1BZ_bU8XqBgamUiOZtA9a5Mm3rLKcyP4
     required: false
+  - name: TARGET_TABLES
+    inputType: FreeText
+    description: ''
+    defaultValue: "['pageview_stats_rolling14days', 'referral_stats_rolling14days', 'totalviews_daybreakdown', 'totalviews_rolling14days', 'ghstars']"
+    required: false
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py
