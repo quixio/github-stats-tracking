@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 while True:
     # More docs: https://github.com/hugovk/pypistats#numpy-and-pandas
-    df = pypistats.overall("quixstreams", total=True, format="pandas")
+    df = pypistats.overall("quixstreams", total=False, format="pandas")
 
     print(df.head())
 
