@@ -16,6 +16,11 @@ variables:
     description: ''
     defaultValue: pypiinstalls
     required: false
+  - name: sleeptime
+    inputType: FreeText
+    description: ''
+    defaultValue: 21600
+    required: false
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py
