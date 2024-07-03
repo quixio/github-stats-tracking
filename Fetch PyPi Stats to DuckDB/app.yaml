@@ -11,11 +11,6 @@ variables:
     description: ''
     defaultValue: ghstats
     required: false
-  - name: TARGET_TABLES
-    inputType: FreeText
-    description: ''
-    defaultValue: "['pageview_stats_rolling14days', 'referral_stats_rolling14days', 'totalviews_daybreakdown', 'totalviews_rolling14days', 'ghstars']"
-    required: false
   - name: GDRIVE_API_CREDENTIALS
     inputType: Secret
     description: ''
