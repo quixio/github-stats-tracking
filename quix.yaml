@@ -123,7 +123,36 @@ deployments:
         description: The name of the consumer group to use when consuming from Kafka
         required: true
         value: duckdb-sink-v5
-  - name: Copy Tables to GSheet
+  - name: Fetch PyPi Stats to DuckDB
+    application: Fetch PyPi Stats to DuckDB
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 500
+      replicas: 1
+    variables:
+      - name: MOTHERDUCK_TOKEN
+        inputType: Secret
+        description: ''
+        required: true
+        secretKey: MD_TOKEN_DEVREL
+      - name: MOTHERDUCK_DATABASE
+        inputType: FreeText
+        description: ''
+        required: false
+        value: ghstats
+      - name: TABLE_NAME
+        inputType: FreeText
+        description: ''
+        required: false
+        value: pypiinstalls
+      - name: sleeptime
+        inputType: FreeText
+        description: ''
+        required: false
+        value: 21600
+  - name: Copy DuckDB Tables to GSheet
     application: Copy Tables to GSheet
     version: latest
     deploymentType: Service
@@ -157,35 +186,6 @@ deployments:
         description: ''
         required: true
         secretKey: GDRIVE_API_CREDENTIALS
-      - name: sleeptime
-        inputType: FreeText
-        description: ''
-        required: false
-        value: 21600
-  - name: Fetch PyPi Stats to DuckDB
-    application: Fetch PyPi Stats to DuckDB
-    version: latest
-    deploymentType: Service
-    resources:
-      cpu: 200
-      memory: 500
-      replicas: 1
-    variables:
-      - name: MOTHERDUCK_TOKEN
-        inputType: Secret
-        description: ''
-        required: true
-        secretKey: MD_TOKEN_DEVREL
-      - name: MOTHERDUCK_DATABASE
-        inputType: FreeText
-        description: ''
-        required: false
-        value: ghstats
-      - name: TABLE_NAME
-        inputType: FreeText
-        description: ''
-        required: false
-        value: pypiinstalls
       - name: sleeptime
         inputType: FreeText
         description: ''
