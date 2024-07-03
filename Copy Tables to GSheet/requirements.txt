@@ -1,2 +1,5 @@
-quixstreams<2.4
+gspread
+pandas
+oauth2client
 python-dotenv
+duckdb==1.0.0
