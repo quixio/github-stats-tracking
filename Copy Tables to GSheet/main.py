@@ -6,6 +6,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import json
 import logging
 import ast
+import time
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -56,4 +57,7 @@ while True:
         print(f"Updated Sheet: {table}")
 
     print("--ALL TABLES UPDATED--")
+    print(f"Sleeping {sleeptime} secs ({sleeptime / 3600} hours)...")
+
+    time.sleep(sleeptime)
 
