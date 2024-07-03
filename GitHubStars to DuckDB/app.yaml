@@ -26,6 +26,11 @@ variables:
     description: ''
     defaultValue: quix-streams
     required: false
+  - name: MOTHERDUCK_TOKEN
+    inputType: Secret
+    description: ''
+    defaultValue: MD_TOKEN_DEVREL
+    required: false
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py
