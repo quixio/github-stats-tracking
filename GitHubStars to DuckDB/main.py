@@ -9,7 +9,7 @@ load_dotenv()
 # Replace with your GitHub personal access token and repository details
 token = os.environ['GH_TOKEN']
 owner = os.environ['GH_ORG']
-repo = 'quix-streams'
+repo = os.environ['GH_REPO']
 
 mdtoken = os.environ['MOTHERDUCK_TOKEN']
 mddatabase = os.environ['MOTHERDUCK_DATABASE']
