@@ -25,6 +25,9 @@ while True:
     # initiate the MotherDuck connection through a service token through
     conn = duckdb.connect(f'md:{mddatabase}?motherduck_token={mdtoken}')
 
+    # Drop the table if it exists
+    conn.execute(f"DROP TABLE IF EXISTS {targetable}")
+
     # Create a table from the DataFrame
     conn.execute(f'''
     CREATE TABLE IF NOT EXISTS {targetable} (
