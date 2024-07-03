@@ -1,6 +1,11 @@
 name: Copy Tables to GSheet
 language: python
-variables: []
+variables:
+  - name: MOTHERDUCK_TOKEN
+    inputType: Secret
+    description: ''
+    defaultValue: MD_TOKEN_DEVREL
+    required: true
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py
