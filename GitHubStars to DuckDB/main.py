@@ -3,6 +3,7 @@ import os
 import logging
 import pandas as pd
 import duckdb
+import time
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -13,7 +14,7 @@ repo = os.environ['GH_REPO']
 
 mdtoken = os.environ['MOTHERDUCK_TOKEN']
 mddatabase = os.environ['MOTHERDUCK_DATABASE']
-
+sleeptime = int(os.environ["sleeptime"])
 print(f"Connecting to {mddatabase}...")
 
 # initiate the MotherDuck connection through a service token through
@@ -79,3 +80,6 @@ while True:
     # Verify insertion
     result = conn.execute("SELECT * FROM ghstats").fetchall()
     print(result)
+
+    print(f"All rows published. Sleeping {sleeptime} secs ({sleeptime / 3600} hours)...")
+    time.sleep(sleeptime) # sleep 1 hour
