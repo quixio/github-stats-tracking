@@ -12,7 +12,7 @@ load_dotenv()
 mdtoken = os.environ['MOTHERDUCK_TOKEN']
 mddatabase = os.environ['MOTHERDUCK_DATABASE']
 targettablestr = os.environ['TARGET_TABLES']
-
+sleeptime = int(os.environ["sleeptime"])
 targettables = ast.literal_eval(targettablestr)
 
 print(f"Connecting to {mddatabase}...")
@@ -57,4 +57,3 @@ while True:
 
     print("--ALL TABLES UPDATED--")
 
-    
