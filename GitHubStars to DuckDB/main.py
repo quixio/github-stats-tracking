@@ -64,6 +64,9 @@ while True:
     # Display the DataFrame
     print(df_sorted)
 
+    # Drop the table if it exists
+    conn.execute("DROP TABLE IF EXISTS ghstars")
+
     # Create table if it doesn't exist
     create_table_query = """
     CREATE TABLE IF NOT EXISTS ghstars (
