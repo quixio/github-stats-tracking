@@ -32,26 +32,29 @@ scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 
-for table in targettables:
-    print(f"Updating table: {table}...")
+while True:
+    for table in targettables:
+        print(f"Updating table: {table}...")
 
-    # Connect to DuckDB and query data
-    df = con.execute(f'SELECT * FROM {table}').df()
-    # Convert Timestamp objects to strings
-    df = df.applymap(lambda x: x.isoformat() if isinstance(x, pd.Timestamp) else x)
+        # Connect to DuckDB and query data
+        df = con.execute(f'SELECT * FROM {table}').df()
+        # Convert Timestamp objects to strings
+        df = df.applymap(lambda x: x.isoformat() if isinstance(x, pd.Timestamp) else x)
 
-    print(f"Dataframe preview {df.head()}")
+        print(f"Dataframe preview {df.head()}")
 
-    # Open Google Sheet by ID and sheet name
-    sheet_id = os.getenv('GSHEET_ID')
-    sheet = client.open_by_key(sheet_id).worksheet(f'{table}')
+        # Open Google Sheet by ID and sheet name
+        sheet_id = os.getenv('GSHEET_ID')
+        sheet = client.open_by_key(sheet_id).worksheet(f'{table}')
 
-    # Clear existing data
-    sheet.clear()
+        # Clear existing data
+        sheet.clear()
 
-    # Update with new data
-    sheet.update([df.columns.values.tolist()] + df.values.tolist())
+        # Update with new data
+        sheet.update([df.columns.values.tolist()] + df.values.tolist())
 
-    print(f"Updated Sheet: {table}")
+        print(f"Updated Sheet: {table}")
 
-print("--ALL TABLES UPDATED--")
+    print("--ALL TABLES UPDATED--")
+
+    
