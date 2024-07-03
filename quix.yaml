@@ -99,8 +99,8 @@ deployments:
     version: latest
     deploymentType: Service
     resources:
-      cpu: 200
-      memory: 500
+      cpu: 500
+      memory: 1000
       replicas: 1
     variables:
       - name: input
@@ -112,17 +112,17 @@ deployments:
         inputType: Secret
         description: Authentication token to access InfluxDB.
         required: true
-        secretKey: MOTHERDUCK_TOKEN
+        secretKey: MD_TOKEN_DEVREL
       - name: MOTHERDUCK_DATABASE
         inputType: FreeText
         description: Database name in InfluxDB where data should be stored.
         required: true
-        value: github_stats
+        value: ghstats
       - name: CONSUMER_GROUP_NAME
         inputType: FreeText
         description: The name of the consumer group to use when consuming from Kafka
         required: true
-        value: duckdb-sink-v2
+        value: duckdb-sink-v3
 
 # This section describes the Topics of the data pipeline
 topics:
