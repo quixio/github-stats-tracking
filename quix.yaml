@@ -191,50 +191,6 @@ deployments:
         description: ''
         required: false
         value: 21600
-  - name: GitHubStars to DuckDB
-    application: GitHubStars to DuckDB
-    version: latest
-    deploymentType: Service
-    resources:
-      cpu: 200
-      memory: 500
-      replicas: 1
-    variables:
-      - name: output
-        inputType: OutputTopic
-        description: Name of the output topic to write into
-        required: true
-        value: github_data_v1
-      - name: GH_TOKEN
-        inputType: Secret
-        description: GitHub token
-        required: true
-        secretKey: GH_TOKEN
-      - name: GH_ORG
-        inputType: FreeText
-        description: ''
-        required: false
-        value: quixio
-      - name: sleeptime
-        inputType: FreeText
-        description: ''
-        required: false
-        value: 21600
-      - name: GH_REPO
-        inputType: FreeText
-        description: ''
-        required: false
-        value: quix-streams
-      - name: MOTHERDUCK_TOKEN
-        inputType: Secret
-        description: ''
-        required: false
-        secretKey: MD_TOKEN_DEVREL
-      - name: MOTHERDUCK_DATABASE
-        inputType: FreeText
-        description: ''
-        required: false
-        value: ghstats
 
 # This section describes the Topics of the data pipeline
 topics:
