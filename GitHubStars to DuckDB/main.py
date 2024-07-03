@@ -1,110 +1,80 @@
-from quixstreams import Application
-import os
-import json
 import requests
-import time
-import datetime
-
-# for local dev, load env vars from a .env file
+import os
+import logging
+import pandas as pd
+import duckdb
 from dotenv import load_dotenv
 load_dotenv()
 
-app = Application(auto_create_topics=True)  # create an Application
+# Replace with your GitHub personal access token and repository details
+token = os.environ['GH_TOKEN']
+owner = os.environ['GH_ORG']
+repo = 'quix-streams'
 
-# define the topic using the "output" environment variable
-topic_name = os.environ["output"]
-topic = app.topic(topic_name)
+mdtoken = os.environ['MOTHERDUCK_TOKEN']
+mddatabase = os.environ['MOTHERDUCK_DATABASE']
 
-# Replace with your GitHub token and organization details
-GITHUB_TOKEN = os.getenv('GH_TOKEN', '')
-ORG = 'quixio'
-sleeptime = int(os.environ["sleeptime"])
+print(f"Connecting to {mddatabase}...")
 
-def get_repos():
-    headers = {
-        'Authorization': f'token {GITHUB_TOKEN}',
-        'Accept': 'application/vnd.github.v3+json'
-    }
-    repos = []
-    page = 1
-    while True:
-        repos_url = f'https://api.github.com/orgs/{ORG}/repos?page={page}&per_page=100'
-        response = requests.get(repos_url, headers=headers)
-        if response.status_code != 200:
-            break
-        page_repos = response.json()
-        if not page_repos:
-            break
-        repos.extend(page_repos)
-        page += 1
-    return repos
+# initiate the MotherDuck connection through a service token through
+conn = duckdb.connect(f'md:{mddatabase}?motherduck_token={mdtoken}')
 
-def get_data(repo_name):
-    headers = {
-        'Authorization': f'token {GITHUB_TOKEN}',
-        'Accept': 'application/vnd.github.v3+json'
-    }
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-    # Get referrals sources
-    referrals_url = f'https://api.github.com/repos/{ORG}/{repo_name}/traffic/popular/referrers'
-    response = requests.get(referrals_url, headers=headers)
-    referral_sources = response.json()
+headers = {
+    'Accept': 'application/vnd.github.v3.star+json',
+    'Authorization': f'Bearer {token}'
+}
 
-    # Get views for specific pages
-    pageviews_url = f'https://api.github.com/repos/{ORG}/{repo_name}/traffic/popular/paths'
-    response = requests.get(pageviews_url, headers=headers)
-    pageviews = response.json()
+url = f'https://api.github.com/repos/{owner}/{repo}/stargazers?per_page=1'
+params = {'per_page': 100}  # Adjust the number of results per page
+stargazers = []
+while url:
+    response = requests.get(url, headers=headers, params=params)
+    if response.status_code == 200:
+        stargazers.extend(response.json())
+        # Check if there's a next page
+        if 'next' in response.links:
+            url = response.links['next']['url']
+            params = None  # No need to send params again for the next pages
+        else:
+            url = None
+    else:
+        print(f"Error: {response.status_code}")
+        break
 
-    # Get total and unique visitors
-    views_url = f'https://api.github.com/repos/{ORG}/{repo_name}/traffic/views'
-    response = requests.get(views_url, headers=headers)
-    views = response.json()
+data = {
+    'user': [],
+    'stardate': [],
+}
 
-    # debug
-    referral_sources_json = json.dumps(referral_sources)
-    pageviews_json = json.dumps(pageviews)
-    views_json = json.dumps(views)
-    print(f"Referrals Sources JSON for {repo_name}:", referral_sources_json)
-    print(f"Referring Sites JSON for {repo_name}:", pageviews_json)
-    print(f"Views JSON for {repo_name}:", views_json)
+for gazer in stargazers:
+    data['user'].append(gazer['user']['login'])
+    data['stardate'].append(gazer['starred_at'])
 
-    current_time = datetime.datetime.utcnow()
-    current_day = current_time.replace(hour=0, minute=0, second=0, microsecond=0)
+# Convert dictionary to DataFrame
+df = pd.DataFrame(data)
+df['stardate'] = pd.to_datetime(df['stardate'])
+df_sorted = df.sort_values(by='stardate', ascending=False)
+df_sorted = df_sorted.reset_index().rename(columns={'index': 'number'})
 
-    return {
-        "repo": repo_name,
-        "referrals": referral_sources,
-        "pageviews": pageviews,
-        "views": views,
-        "day_recorded": current_day.isoformat() + 'Z',
-        "timestamp_iso": current_time.isoformat() + 'Z',  # ISO 8601 format
-        "timestamp_unix": int(current_time.timestamp())  # Unix timestamp
-    }
+# Display the DataFrame
+print(df_sorted)
 
-def main():
-    """
-    Read data from the hardcoded dataset and publish it to Kafka
-    """
-    while True:
-        repos = get_repos()
-        with app.get_producer() as producer:
-            for repo in repos:
-                repo_name = repo['name']
-                json_data = json.dumps(get_data(repo_name))  # convert the row to JSON
-                print(json_data)
-                # publish the data to the topic
-                producer.produce(
-                    topic=topic.name,
-                    key=f'github_stats_{ORG}_{repo_name}',
-                    value=json_data,
-                )
+# Create table if it doesn't exist
+create_table_query = """
+CREATE TABLE IF NOT EXISTS ghstats (
+    number INTEGER,
+    user VARCHAR,
+    stardate TIMESTAMP
+);
+"""
+conn.execute(create_table_query)
 
-            print(f"All rows published. Sleeping {sleeptime} secs ({sleeptime / 3600} hours)...")
+# Insert DataFrame into DuckDB table
+conn.execute("INSERT INTO ghstats SELECT * FROM df_sorted")
 
-        time.sleep(sleeptime) # sleep 1 hour
-
-if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("Exiting.")
+# Verify insertion
+result = conn.execute("SELECT * FROM ghstats").fetchall()
+print(result)
