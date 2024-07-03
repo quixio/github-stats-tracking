@@ -40,7 +40,7 @@ while True:
         # Connect to DuckDB and query data
         df = con.execute(f'SELECT * FROM {table}').df()
         # Convert Timestamp objects to strings
-        df = df.applymap(lambda x: x.isoformat() if isinstance(x, pd.Timestamp) else x)
+        df = df.map(lambda x: x.isoformat() if isinstance(x, pd.Timestamp) else x)
 
         print(f"Dataframe preview {df.head()}")
 
