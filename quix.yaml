@@ -151,7 +151,7 @@ deployments:
         inputType: FreeText
         description: ''
         required: false
-        value: "['pageview_stats_rolling14days', 'referral_stats_rolling14days', 'totalviews_daybreakdown', 'totalviews_rolling14days', 'ghstars']"
+        value: "['pageview_stats_rolling14days', 'referral_stats_rolling14days', 'totalviews_daybreakdown', 'totalviews_rolling14days', 'ghstars','pypiinstalls']"
       - name: GDRIVE_API_CREDENTIALS
         inputType: Secret
         description: ''
