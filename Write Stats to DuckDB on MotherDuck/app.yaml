@@ -19,7 +19,7 @@ variables:
   - name: CONSUMER_GROUP_NAME
     inputType: FreeText
     description: The name of the consumer group to use when consuming from Kafka
-    defaultValue: duckdb-sink-v2
+    defaultValue: duckdb-sink-v3
     required: true
 dockerfile: dockerfile
 runEntryPoint: main.py
