@@ -21,6 +21,11 @@ variables:
     description: ''
     defaultValue: "['pageview_stats_rolling14days', 'referral_stats_rolling14days', 'totalviews_daybreakdown', 'totalviews_rolling14days', 'ghstars']"
     required: false
+  - name: GDRIVE_API_CREDENTIALS
+    inputType: Secret
+    description: ''
+    defaultValue: GH_TOKEN
+    required: true
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py
