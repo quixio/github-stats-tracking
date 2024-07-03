@@ -1,24 +1,57 @@
 import os
-from quixstreams import Application
-
-# for local dev, load env vars from a .env file
+import duckdb
+import pandas as pd
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+import json
+import logging
+import ast
 from dotenv import load_dotenv
 load_dotenv()
 
-app = Application.Quix("transformation-v1", auto_offset_reset="earliest")
+mdtoken = os.environ['MOTHERDUCK_TOKEN']
+mddatabase = os.environ['MOTHERDUCK_DATABASE']
+targettablestr = os.environ['TARGET_TABLES']
 
-input_topic = app.topic(os.environ["input"])
-output_topic = app.topic(os.environ["output"])
+targettables = ast.literal_eval(targettablestr)
 
-sdf = app.dataframe(input_topic)
+print(f"Connecting to {mddatabase}...")
 
-# put transformation logic here
-# see docs for what you can do
-# https://quix.io/docs/get-started/quixtour/process-threshold.html
+# initiate the MotherDuck connection through a service token through
+con = duckdb.connect(f'md:{mddatabase}?motherduck_token={mdtoken}')
 
-sdf = sdf.update(lambda row: print(row))
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-sdf = sdf.to_topic(output_topic)
+# Load credentials from environment variable
+creds_json = os.getenv('GDRIVE_API_CREDENTIALS')
+creds_dict = json.loads(creds_json)
 
-if __name__ == "__main__":
-    app.run(sdf)
+# Authenticate and initialize Google Sheets API
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+client = gspread.authorize(creds)
+
+for table in targettables:
+    print(f"Updating table: {table}...")
+
+    # Connect to DuckDB and query data
+    df = con.execute(f'SELECT * FROM {table}').df()
+    # Convert Timestamp objects to strings
+    df = df.map(lambda x: x.isoformat() if isinstance(x, pd.Timestamp) else x)
+
+    print(f"Dataframe preview {df.head()}")
+
+    # Open Google Sheet by ID and sheet name
+    sheet_id = os.getenv('GSHEET_ID')
+    sheet = client.open_by_key(sheet_id).worksheet(f'{table}')
+
+    # Clear existing data
+    sheet.clear()
+
+    # Update with new data
+    sheet.update([df.columns.values.tolist()] + df.values.tolist())
+
+    print(f"Updated Sheet: {table}")
+
+print("--ALL TABLES UPDATED--")
