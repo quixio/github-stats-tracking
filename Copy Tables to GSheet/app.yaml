@@ -24,7 +24,7 @@ variables:
   - name: GDRIVE_API_CREDENTIALS
     inputType: Secret
     description: ''
-    defaultValue: GH_TOKEN
+    defaultValue: GDRIVE_API_CREDENTIALS
     required: true
 dockerfile: dockerfile
 runEntryPoint: main.py
