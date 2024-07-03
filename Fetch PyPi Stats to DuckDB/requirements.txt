@@ -1,5 +1,4 @@
-gspread
+pypistats
 pandas
-oauth2client
 python-dotenv
 duckdb==1.0.0
