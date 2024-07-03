@@ -39,6 +39,10 @@ while True:
 
         # Connect to DuckDB and query data
         df = con.execute(f'SELECT * FROM {table}').df()
+
+        # Replace NaT values with a placeholder string
+        df = df.fillna('N/A')
+
         # Convert Timestamp objects to strings
         df = df.map(lambda x: x.isoformat() if isinstance(x, pd.Timestamp) else x)
 
