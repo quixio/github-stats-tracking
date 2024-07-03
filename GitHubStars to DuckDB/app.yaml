@@ -19,7 +19,7 @@ variables:
   - name: sleeptime
     inputType: FreeText
     description: ''
-    defaultValue: 3600
+    defaultValue: 21600
     required: false
   - name: GH_REPO
     inputType: FreeText
