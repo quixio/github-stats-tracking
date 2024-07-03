@@ -1,0 +1,36 @@
+name: Fetch PyPi Stats to DuckDB
+language: python
+variables:
+  - name: MOTHERDUCK_TOKEN
+    inputType: Secret
+    description: ''
+    defaultValue: MD_TOKEN_DEVREL
+    required: true
+  - name: MOTHERDUCK_DATABASE
+    inputType: FreeText
+    description: ''
+    defaultValue: ghstats
+    required: false
+  - name: GSHEET_ID
+    inputType: FreeText
+    description: ''
+    defaultValue: 1JVdz_nC0bXW1BZ_bU8XqBgamUiOZtA9a5Mm3rLKcyP4
+    required: false
+  - name: TARGET_TABLES
+    inputType: FreeText
+    description: ''
+    defaultValue: "['pageview_stats_rolling14days', 'referral_stats_rolling14days', 'totalviews_daybreakdown', 'totalviews_rolling14days', 'ghstars']"
+    required: false
+  - name: GDRIVE_API_CREDENTIALS
+    inputType: Secret
+    description: ''
+    defaultValue: GDRIVE_API_CREDENTIALS
+    required: true
+  - name: sleeptime
+    inputType: FreeText
+    description: ''
+    defaultValue: 21600
+    required: false
+dockerfile: dockerfile
+runEntryPoint: main.py
+defaultFile: main.py
