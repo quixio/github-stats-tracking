@@ -66,7 +66,7 @@ while True:
 
     # Create table if it doesn't exist
     create_table_query = """
-    CREATE TABLE IF NOT EXISTS ghstats (
+    CREATE TABLE IF NOT EXISTS ghstars (
         number INTEGER,
         user VARCHAR,
         stardate TIMESTAMP
@@ -75,10 +75,10 @@ while True:
     conn.execute(create_table_query)
 
     # Insert DataFrame into DuckDB table
-    conn.execute("INSERT INTO ghstats SELECT * FROM df_sorted")
+    conn.execute("INSERT INTO ghstars SELECT * FROM df_sorted")
 
     # Verify insertion
-    result = conn.execute("SELECT * FROM ghstats").fetchall()
+    result = conn.execute("SELECT * FROM ghstars").fetchall()
     print(result)
 
     print(f"All rows published. Sleeping {sleeptime} secs ({sleeptime / 3600} hours)...")
