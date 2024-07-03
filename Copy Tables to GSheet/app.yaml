@@ -11,6 +11,11 @@ variables:
     description: ''
     defaultValue: ghstats
     required: false
+  - name: GSHEET_ID
+    inputType: FreeText
+    description: ''
+    defaultValue: 1JVdz_nC0bXW1BZ_bU8XqBgamUiOZtA9a5Mm3rLKcyP4
+    required: false
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py
