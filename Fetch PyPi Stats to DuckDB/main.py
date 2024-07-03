@@ -2,6 +2,7 @@ import pypistats
 import duckdb
 import os
 import logging
+import time
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -45,5 +46,5 @@ while True:
     # Close the connection
     conn.close()
 
-    print(f"All rows published. Sleeping {sleeptime} secs ({sleeptime / 3600} hours)...")
+    print(f"Table updated. Sleeping {sleeptime} secs ({sleeptime / 3600} hours)...")
     time.sleep(sleeptime) # sleep 1 hour
