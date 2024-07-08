@@ -135,7 +135,7 @@ input_topic = app.topic(os.environ['input'], value_deserializer="json")
 sdf = app.dataframe(topic=input_topic)
 sdf = sdf.update(lambda val: print(f"Received update: {val}"))
 
-# Trigger the embedding function for any new messages(rows) detected in the filtered SDF
+# Trigger the write function for any new messages(rows) in the SDF
 sdf = sdf.update(lambda val: to_duckdb(con, val), stateful=False)
 
 app.run(sdf)
