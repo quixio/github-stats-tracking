@@ -44,7 +44,7 @@ def to_duckdb(conn, msg):
         for record in msg["referrals"]:
             conn.execute(f'''
                 INSERT INTO {referralstable} (repo, referrer, count, uniques, day) VALUES (?, ?, ?, ?, ?)
-                ON CONFLICT (repo, referrer, day)
+                ON CONFLICT (repo, referrer, day) # Need to overwrite rather than insert if same combo of date-repo-referrer already exists
                 DO UPDATE SET count = excluded.count, uniques = excluded.uniques;
                 ''', (sourcerepo, record['referrer'], record['count'], record['uniques'], reportedtime))
             logger.info(f"Wrote referral record: {record}")
@@ -69,7 +69,7 @@ def to_duckdb(conn, msg):
         for record in msg["pageviews"]:
             conn.execute(f'''
                 INSERT INTO {pageviewstable} (day, repo, path, title, count, uniques) VALUES (?, ?, ?, ?, ?, ?)
-                ON CONFLICT (repo, path, day)
+                ON CONFLICT (repo, path, day)  # Need to overwrite rather than insert if same combo of date-repo-path already exists
                 DO UPDATE SET title = excluded.title, count = excluded.count, uniques = excluded.uniques;
                 ''', (reportedtime, sourcerepo, record['path'], record['title'], record['count'], record['uniques']))
 
@@ -91,7 +91,7 @@ def to_duckdb(conn, msg):
         for record in msg["views"]["views"]:
             conn.execute(f'''
                 INSERT INTO {dailyviewstable} (day, repo, count, uniques) VALUES (?, ?, ?, ?)
-                ON CONFLICT (repo, day)
+                ON CONFLICT (repo, day)  # Need to overwrite rather than insert if same combo of date-repo already exists
                 DO UPDATE SET count = excluded.count, uniques = excluded.uniques;
                 ''', (record['timestamp'], sourcerepo, record['count'], record['uniques']))
             logger.info(f"Wrote views record: {record}")
@@ -113,7 +113,7 @@ def to_duckdb(conn, msg):
 
         conn.execute(f'''
         INSERT INTO {totalviewstable} (repo, count, uniques, day) VALUES (?, ?, ?, ?)
-        ON CONFLICT (repo, day)
+        ON CONFLICT (repo, day)   # Need to overwrite rather than insert if same combo of date-repo already exists
         DO UPDATE SET count = excluded.count, uniques = excluded.uniques;
         ''', (sourcerepo, msg["views"]["count"], msg["views"]["uniques"], reportedtime))
         logger.info(f"Wrote agg-views record for: {sourcerepo}")
